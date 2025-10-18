@@ -71,9 +71,16 @@ class Head(nn.Module):
 
     def __init__(self, head_size):
         super().__init__()
-        self.key = nn.Linear(n_embd, head_size, bias=False)
-        self.query = nn.Linear(n_embd, head_size, bias=False)
-        self.value = nn.Linear(n_embd, head_size, bias=False)
+        # Q ==> ce que je cherche
+        # K ==> ce que j'ai à offrir
+        # V ==> le contenu que j'ai à offrir si on s'intesse à moi
+        # avec le "je" étant le token en train d'être calculer
+
+        self.key = nn.Linear(n_embd, head_size, bias=False) # Query (Q) → c’est la “question” posée par un mot (ou un token).
+                                                            # Par exemple : “De quoi ai-je besoin pour comprendre ce mot dans son contexte ?”
+        self.query = nn.Linear(n_embd, head_size, bias=False)# Key (K) → c’est une “étiquette” associée à chaque mot, qui décrit le type d’information qu’il contient.
+                                                             # On peut voir ça comme : “À quelles questions puis-je répondre ?”
+        self.value = nn.Linear(n_embd, head_size, bias=False) # Value (V) → c’est le “contenu” réel de l’information du mot, celle qu’on va éventuellement combiner.
         self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
 
         self.dropout = nn.Dropout(dropout)

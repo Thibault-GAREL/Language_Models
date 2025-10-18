@@ -78,6 +78,27 @@ Here you can find the schema of a Transformer Model :
 Here is a cool schema I found ! It is a realy clear explanation of the different dimension :
 ![Dimension Schema](img/dimension.png)
 
+In a Transformer, the core mechanism is **attention**.
+The attention mechanism is built around three vectors derived from the input: Q (Query), K (Key), and V (Value).
+They control how each token (word, subword, etc.) focuses on others in the same sequence.
+
+ #### What They Mean ?
+Q = Query → What am I looking for?
+The question a token asks to find relevant context.
+
+K = Key → What do I contain?
+A label that represents what kind of information a token holds.
+
+V = Value → What do I offer?
+The actual information content that can be shared if attended to.
+
+#### A other explication can be :
+- Q asks a question: “Who in the sequence can help me?”
+
+- K provides an identity: “I can help if you need context about X.”
+
+- V provides content: “Here’s what I can contribute.”
+
 ---
 
 
