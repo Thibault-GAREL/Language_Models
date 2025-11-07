@@ -69,22 +69,20 @@ With only 5,000 iterations (~4h GPU 💻🔥), the model starts producing French
   - ✨ Generate new text sequences and have fun 😆 !!!
 
 ## 🗺️ Schema 
+In a Transformer, the core mechanism is **attention**.
+The attention mechanism is built around three vectors derived from the input: Q (Query), K (Key), and V (Value).
+They control how each token (word, sub-word, etc.) focuses on others in the same sequence.
+
+**Positional Encoding** : Still writting...
+
+**Multi-Head Attention**:  
 Here you can find the schema of a Transformer Model :
 ![Transformer Schema](img/Encoder-Decoder.png)
 
 Here is a cool schema I found ! It is a really clear explanation of the different dimension for on head:
 ![Dimension Schema](img/dimension.png)
 
-For each cross (Q & K for 2 and A & V for 3):
-![QxK](img/QxK.png)
-
-![AxV](img/AxV.png)
-
-In a Transformer, the core mechanism is **attention**.
-The attention mechanism is built around three vectors derived from the input: Q (Query), K (Key), and V (Value).
-They control how each token (word, subword, etc.) focuses on others in the same sequence.
-
- #### What They Mean ?
+#### What They Mean ?
 Q = Query → What am I looking for?
 The question a token asks to find relevant context.
 
@@ -95,11 +93,27 @@ V = Value → What do I offer?
 The actual information content that can be shared if attended to.
 
 #### A other explication can be :
-- Q asks a question: “Who in the sequence can help me?”
+- Q asks a question: “Who in the sequence can help me?” (For example, Are there any adjectives around me?)
 
-- K provides an identity: “I can help if you need context about X.”
+- K provides an identity: “I can help if you need context about X.” (For example, Yes, I'm an ajective !)
 
-- V provides content: “Here’s what I can contribute.”
+- V provides content: “Here’s what I can contribute.” (I can say that one thing on the sentence is blue)
+
+
+For each cross (Q & K for 2 and A & V for 3):
+![QxK](img/QxK.png)
+We apply softmax to have A (We transform the matrix multiplication, QKT/sqrt(dk), scores into probabilities).
+
+![AxV](img/AxV.png)
+
+**Add & Norm**:
+Then Add & Norm is here to don't "forget"  the initial prompt:
+- Add : We add the embedding find after the multi-head attention and the initial input 
+- Norm : Then, we normalise the layer. It allows to center and resizes the values to stabilize and accelerates convergence. 
+
+**Feed Forward**:  
+In a Transformer, the feed-forward layer is just a small neural network applied independently to each token. It transforms the token’s representation through linear and non-linear operations, helping the model capture more complex relationships after attention has redistributed information.
+
 
 ---
 
@@ -145,5 +159,8 @@ This project is based on:
 - 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need) 
 - 🧠 OpenAI’s GPT-2 / GPT-3 and [nanoGPT](https://github.com/karpathy/nanoGPT)  
 
+For the illustration:
+- 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need) 
+- A video from 3Blue1Brown : [Attention in transformers](https://www.youtube.com/watch?v=eMlx5fFNoYc)
 
 Code created by me 😎, Thibault GAREL - [Github](https://github.com/Thibault-GAREL)
