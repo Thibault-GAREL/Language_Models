@@ -6,6 +6,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)  
 ![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)  
 
+![Titre-GPT_from_scratch](img/Titre-GPT_from_scratch.png)
+
 ## 📝 Project Description  
 Welcome to **GPT from Scratch** 🤖💬 !  
 The goal of this project is to **implement a Transformer model step by step**, inspired by the architecture behind **GPT (Generative Pre-trained Transformer)**.  
@@ -69,17 +71,117 @@ With only 5,000 iterations (~4h GPU 💻🔥), the model starts producing French
   - ✨ Generate new text sequences and have fun 😆 !!!
 
 ## 🗺️ Schema 
+
+
+### **Embedding**:
+Embedding is the keystone of the "understanding" of the words and their senses for transformer models :  
+
+Embedding is a way to **transform something** (text with tokens, image, data...) into a **list of numbers that captures their "meaning"**, not its raw form.
+
+This list of numbers is a **vector with many dimensions**.
+
+
+For example, let's take dimensions, as **dessertness** and **sandwichness** ! We can find, for food, **percentage**, coordinates of dessertness and sandwichness and place, for instance, the apple strudel as (0.6, 0.8) because it is a dessert and is a bit packaged like a sandwich :  
+![Embedding_explication](img/Embedding_explication.png)
+
+Two pieces of content that mean roughly the same thing will have vectors close to each other. Two unrelated contents will be far apart.
+
+The different dimensions can be **grammar, syntax, semantics of words**, but it is not chosen by human logic. It is a mix, intertwined, and not one dimension for one sense (like dessertness). The model has **found by itself, learned through training** a geometry, an embedding to understand well human creations (text, image...).
+This is why some people say that **"we have stopped understanding AI"**, because the dimensions have a sense only for the model (and too many dimensions for the human brain), and we can't predict an AI's output other than testing it.
+
+If we apply the same transformation vector for **"royalty"**, we can transform **a man into a king**, or **woman into a queen**, and next to it, prince, princess can be found with the transformation vector "child" approximately : 
+>E(king) - E(man) + E(woman) ≈ E(queen) <br> <sub>E(...) for the embedding</sub>
+
+Here is a diagram that shows the properties of embeddings (addition, subtraction...). It is a geometric effect that the model learns statistically : 
+![Embedding_explication_vector](img/Embedding_explication_vector.png)
+
+To find this, the model performs **backpropagation of the global error** in the transformer architecture, but also for the embedding !
+
+Here is an example of training :
+![Train embedding](img/Train-embedding.gif)
+
+### **Positional Encoding**:  
+A Transformer treats a sentence as a set of tokens **in parallel**, **not as a sequential sequence**.  
+The **positional encoder** is here to **inject the order notion** in the token representations.
+So the input of LLM is :   
+
+>Input<sub>i</sub> = Embedding(token<sub>i</sub>) + PositionalEncoding(i)  
+
+(With i the index of the position)
+<br><br>
+In the original "Attention Is All You Need" paper, positions are encoded with sines and cosines at different frequencies.
+Here is the calcul :
+
+>PE(pos, 2i)   = sin(pos / 10000^(2i / d))  
+PE(pos, 2i+1) = cos(pos / 10000^(2i / d))
+
+With :
+- pos : token position (0, 1, 2, …)
+- i = dimension index
+- d = total dimension of embedding
+
+It is useful, because the fonctions are :
+- **continuous**,
+- **bounded** (no numerical explosion),
+- **periodic**, 
+- allow us to express a **position shift** as a simple transformation
+
+For the i dimension :  
+Calcul of the frequency : 
+>f = 1 / 10000^(2i / d))
+  - If **i** is **low** dimension, f is **high** !
+  - If **i** is **high** dimension, f is **low** !  
+Then :
+  - If **f** is **high**, it is a fast variation and 2 consecutive positions seem **very different**.
+  - If **f** is **low**, it is a slow variation and 2 consecutive positions seem **very similar**.
+
+The same **gap of position** will be, for a **high frequency**, **just 1 or 2 tokens** but, for a **low frequency**, an **entire paragraph**.  
+
+It means that the **first dimension** are "looking" **short terme** relation and for the **last dimension**, the **long terme** relation.   
+Furthermore, the progression is **exponential** 
+(not linear to **cover a good range** - 
+many dimensions for short terme and mid terme and non redondantes long terme dimensions)  
+
+<br>
+
+![Sin & Cos schema](img/Circle_cos_sin.gif)
+
+We calculate **sin and cos** to have an angle, to add a direction. If the value augment, are the position before or after ?  
+It allows to have a bijective representation of the angle, a unique point on the unit circle !
+
+Even if there is a **collision** with the same angle, it is absorbed by the **multiple scale** (short, mid and long terme).
+
+The position (PE - Positional Encoding) is then add to the embedding (E, the token's meaning) :  
+>Input = E + PE  
+
+With:
+>E(t)=(e<sub>0</sub>,e<sub>1</sub>,…,e<sub>d−1</sub>) ∈ R<sub>d</sub>
+
+> PE(pos)=(p<sub>0</sub>,p<sub>1</sub>,…,p<sub>d−1</sub>) ∈ R<sub>d</sub>
+- With:
+  - p<sub>0</sub> = sin(θ<sub>0</sub>)
+  - p<sub>1</sub> = cos(θ<sub>0</sub>)
+  - p<sub>2</sub> = sin(θ<sub>1</sub>)
+  - p<sub>3</sub> = cos(θ<sub>1</sub>) 
+  - ...  
+
+>Input = (e<sub>0</sub> + sin(θ<sub>0</sub>), e<sub>1</sub> + cos(θ<sub>0</sub>), e<sub>2</sub> + sin(θ<sub>1</sub>), e<sub>3</sub> + cos(θ<sub>1</sub>)...)  
+
+With this method, the **position pollue, is mixed with embedding**, but the transformer learn with it !
+
+
+
+
+### **Multi-Head Attention**:  
 In a Transformer, the core mechanism is **attention**.
 The attention mechanism is built around three vectors derived from the input: Q (Query), K (Key), and V (Value).
-They control how each token (word, sub-word, etc.) focuses on others in the same sequence.
+They control how each token (word, sub-word, etc.) focuses on others in the same sequence.  
 
-**Positional Encoding** : Still writting...
-
-**Multi-Head Attention**:  
-Here you can find the schema of a Transformer Model :
+Here you can find the schema of a Transformer Model :  
+(Follow the red number to understand better the localisation of each schema !)
 ![Transformer Schema](img/Encoder-Decoder.png)
 
-Here is a cool schema I found ! It is a really clear explanation of the different dimension for on head:
+Here is a cool schema I found ! It is a really clear explanation of the different dimensions for on head:
 ![Dimension Schema](img/dimension.png)
 
 #### What They Mean ?
@@ -160,7 +262,10 @@ This project is based on:
 - 🧠 OpenAI’s GPT-2 / GPT-3 and [nanoGPT](https://github.com/karpathy/nanoGPT)  
 
 For the illustration:
+- 
+- The training gif for embedding : [Gif site](https://www.reddit.com/r/learnmachinelearning/comments/154s2o5/how_i_created_an_animation_of_the_embeddings/?tl=fr)
 - 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need) 
 - A video from 3Blue1Brown : [Attention in transformers](https://www.youtube.com/watch?v=eMlx5fFNoYc)
+
 
 Code created by me 😎, Thibault GAREL - [Github](https://github.com/Thibault-GAREL)
