@@ -4,9 +4,11 @@
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.7.1-red.svg)  
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)  
-![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)  
+![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)
 
-![Titre-GPT_from_scratch](img/Titre-GPT_from_scratch.png)
+<p align="center">
+  <img src="img/Titre-GPT_from_scratch.png" alt="Titre-GPT_from_scratch" height="200">
+</p>
 
 ## 📝 Project Description  
 Welcome to **GPT from Scratch** 🤖💬 !  
