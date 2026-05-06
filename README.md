@@ -84,7 +84,9 @@ This list of numbers is a **vector with many dimensions**.
 
 
 For example, let's take dimensions, as **dessertness** and **sandwichness** ! We can find, for food, **percentage**, coordinates of dessertness and sandwichness and place, for instance, the apple strudel as (0.6, 0.8) because it is a dessert and is a bit packaged like a sandwich :
-![Embedding_explication](img/Embedding_explication.png)
+<p align="center">
+  <img src="img/Embedding_explication.png" alt="Embedding_explication" width="80%">
+</p>
 
 Two pieces of content that mean roughly the same thing will have vectors close to each other. Two unrelated contents will be far apart.
 
@@ -95,12 +97,17 @@ If we apply the same transformation vector for **"royalty"**, we can transform *
 >E(king) - E(man) + E(woman) ≈ E(queen) <br> <sub>E(...) for the embedding</sub>
 
 Here is a diagram that shows the properties of embeddings (addition, subtraction...). It is a geometric effect that the model learns statistically :
-![Embedding_explication_vector](img/Embedding_explication_vector.png)
+
+<p align="center">
+  <img src="img/Embedding_explication_vector.png" alt="Embedding_explication_vector" width="80%">
+</p>
 
 To find this, the model performs **backpropagation of the global error** in the transformer architecture, but also for the embedding !
 
 Here is an example of training :
-![Train embedding](img/Train-embedding.gif)
+<p align="center">
+  <img src="img/Train-embedding.gif" alt="Train embedding" width="80%">
+</p>
 
 ### **Positional Encoding**:
 A Transformer treats a sentence as a set of tokens **in parallel**, **not as a sequential sequence**.
