@@ -153,7 +153,9 @@ many dimensions for short terme and mid terme and non redondantes long terme dim
 
 <br>
 
-![Sin & Cos schema](img/Circle_cos_sin.gif)
+<p align="center">
+  <img src="img/Circle_cos_sin.gif" alt="Sin & Cos schema" width="80%">
+</p>
 
 We calculate **sin and cos** to have an angle, to add a direction. If the value augment, are the position before or after ?
 It allows to have a bijective representation of the angle, a unique point on the unit circle !
@@ -188,10 +190,14 @@ They control how each token (word, sub-word, etc.) focuses on others in the same
 
 Here you can find the schema of a Transformer Model :
 (Follow the red number to understand better the localisation of each schema !)
-![Transformer Schema](img/Encoder-Decoder.png)
+<p align="center">
+  <img src="img/Encoder-Decoder.png" alt="Transformer Schema" width="80%">
+</p>
 
 Here is a cool schema I found ! It is a really clear explanation of the different dimensions for on head:
-![Dimension Schema](img/dimension.png)
+<p align="center">
+  <img src="img/dimension.png" alt="Dimension Schema" width="80%">
+</p>
 
 #### What They Mean ?
 Q = Query → What am I looking for?
@@ -212,10 +218,14 @@ The actual information content that can be shared if attended to.
 
 
 For each cross (Q & K for 2 and A & V for 3):
-![QxK](img/QxK.png)
+<p align="center">
+  <img src="img/QxK.png" alt="QxK" width="80%">
+</p>
 We apply softmax to have A (We transform the matrix multiplication, QKT/sqrt(dk), scores into probabilities).
 
-![AxV](img/AxV.png)
+<p align="center">
+  <img src="img/AxV.png" alt="AxV" width="80%">
+</p>
 
 **Add & Norm**:
 Then Add & Norm is here to don't "forget"  the initial prompt:
