@@ -232,9 +232,9 @@ Then Add & Norm is here to don't "forget"  the initial prompt:
 - Add : We add the embedding find after the multi-head attention and the initial input
 - Norm : Then, we normalise the layer. It allows to center and resizes the values to stabilize and accelerates convergence.
 
-The normalization used in every Transformer is **LayerNorm**, not BatchNorm. The difference is simply **which axis you average over**:
-- **BatchNorm** → `axis=0` → mean of the **1st dimension** (the batch). Each feature is normalized across all tokens of the batch → depends on the batch size and on the other tokens
-- **LayerNorm** → `axis=1` → mean **of the point itself** (across its features). Each token is normalized independently → fully independent of the batch (even works at inference with `batch_size=1`)
+The normalization used in every Transformer is **LayerNorm**, not BatchNorm. In both cases the operation is the same: **center the data to mean = 0 and rescale it to std = 1**, like a standard normal distribution N(0, 1) 📊. The only difference is **which axis you average over**:
+- **BatchNorm** → `axis=0` → mean of **each dimensions** (the batch). Each feature is centered to 0 and rescaled to std=1 across all tokens of the batch → depends on the batch size and on the other tokens
+- **LayerNorm** → `axis=1` → mean of the **point itself** (across its features). Each token is centered to 0 and rescaled to std=1 independently → fully independent of the batch (even works at inference with `batch_size=1`)
 
 For one token x = (x<sub>1</sub>, x<sub>2</sub>, …, x<sub>d</sub>) of embedding dimension d :
 >μ = mean(x<sub>1</sub>, …, x<sub>d</sub>) <br>
