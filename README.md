@@ -304,12 +304,12 @@ python Transformer.py
 
 ## 📖 Inspiration / Sources
 This project is based on:
-- 🎥 [Andrej Karpathy – Let's build GPT from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY)
+- 🎥 The structure for the achitecture [Andrej Karpathy – Let's build GPT from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY)
 - 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need)
 - 🧠 OpenAI’s GPT-2 / GPT-3 and [nanoGPT](https://github.com/karpathy/nanoGPT)
+- 🔄 Explanation video for the Normalization Layer [The Most Underrated Layer Inside Every AI Model](https://youtu.be/JHl_gwVoh-k?is=CrqPJxeXfR-BF9Cz)
 
 For the illustration:
--
 - The training gif for embedding : [Gif site](https://www.reddit.com/r/learnmachinelearning/comments/154s2o5/how_i_created_an_animation_of_the_embeddings/?tl=fr)
 - 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need)
 - A video from 3Blue1Brown : [Attention in transformers](https://www.youtube.com/watch?v=eMlx5fFNoYc)
