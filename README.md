@@ -232,6 +232,34 @@ Then Add & Norm is here to don't "forget"  the initial prompt:
 - Add : We add the embedding find after the multi-head attention and the initial input
 - Norm : Then, we normalise the layer. It allows to center and resizes the values to stabilize and accelerates convergence.
 
+The normalization used in every Transformer is **LayerNorm**, not BatchNorm. The difference is simply **which axis you average over**:
+- **BatchNorm** → `axis=0` → mean of the **1st dimension** (the batch). Each feature is normalized across all tokens of the batch → depends on the batch size and on the other tokens
+- **LayerNorm** → `axis=1` → mean **of the point itself** (across its features). Each token is normalized independently → fully independent of the batch (even works at inference with `batch_size=1`)
+
+For one token x = (x<sub>1</sub>, x<sub>2</sub>, …, x<sub>d</sub>) of embedding dimension d :
+>μ = mean(x<sub>1</sub>, …, x<sub>d</sub>) <br>
+>σ² = var(x<sub>1</sub>, …, x<sub>d</sub>) <br>
+>y<sub>i</sub> = γ<sub>i</sub> × (x<sub>i</sub> − μ) / sqrt(σ² + ε) + β<sub>i</sub>
+
+Where **γ** (gain) and **β** (bias) are **learnable parameters** that let the network re-stretch or shift the normalized values when needed.
+
+**Geometric intuition**: LayerNorm projects each token onto a sphere of radius √d :
+1. Subtracting μ centers the token on the hyperplane x<sub>1</sub> + x<sub>2</sub> + … + x<sub>d</sub> = 0, which is the plane **perpendicular to the vector (1, 1, …, 1)**
+2. Dividing by σ forces the token's norm to be √d
+
+Here is a 3D visualization (d = 3, so the sphere of radius √3 intersected with the plane x+y+z=0 becomes a **circle**) :
+
+<p align="center">
+  <img src="img/Figure_visualisation.png" alt="LayerNorm 3D visualization" width="80%">
+</p>
+
+The **green point** shows the same token before and after LayerNorm — its position is completely re-mapped, but its **direction is preserved**.
+
+**Doesn't this destroy the token's identity?** Not really :
+- 🎯 The semantic content of a token is encoded in its **direction**, not its norm. Attention computes Q · K<sup>T</sup>, which is essentially a cosine similarity → it only "sees" directions.
+- 📐 LayerNorm always removes exactly **2 degrees of freedom** (the mean + the scale). In 3D this is brutal (3 → 1, a circle). But in 512D (BERT) it leaves 510D, so **99.6 %** of the directional information is preserved.
+- 🎚️ The learnable **γ** and **β** can re-stretch and shift each dimension after normalization, giving the network all the elasticity it needs.
+
 **Feed Forward**:
 In a Transformer, the feed-forward layer is just a small neural network applied independently to each token. It transforms the token’s representation through linear and non-linear operations, helping the model capture more complex relationships after attention has redistributed information.
 
