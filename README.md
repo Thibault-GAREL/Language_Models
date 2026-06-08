@@ -227,6 +227,13 @@ We apply softmax to have A (We transform the matrix multiplication, QKT/sqrt(dk)
   <img src="img/AxV.png" alt="AxV" width="80%">
 </p>
 
+**Feed Forward**:
+In a Transformer, the feed-forward network (FFN) acts as a standard fully-connected neural network applied independently to each token.
+* **Evolution of Activations:** Early Transformers relied on standard **ReLU**, which was later replaced by smoother alternatives like **GELU**, and now predominantly **SiLU/Swish** in modern models.
+* **Architecture Shift:** While classic architectures used a simple **2-layer** setup (up-projection $\rightarrow$ activation $\rightarrow$ down-projection), modern Large Language Models (like Llama or Mistral) implement a **gated variant (SwiGLU)**. This modern approach uses **3 linear layers** to create a dynamic gating mechanism.
+Ultimately, while the attention mechanism allows tokens to communicate, the FFN transforms representations individually, acting as a "key-value memory" that stores the model's factual knowledge.
+
+
 **Add & Norm**:
 Then Add & Norm is here to don't "forget"  the initial prompt:
 - Add : We add the embedding find after the multi-head attention and the initial input
@@ -259,9 +266,6 @@ The **green point** shows the same token before and after LayerNorm — its posi
 - 🎯 The semantic content of a token is encoded in its **direction**, not its norm. Attention computes Q · K<sup>T</sup>, which is essentially a cosine similarity → it only "sees" directions.
 - 📐 LayerNorm always removes exactly **2 degrees of freedom** (the mean + the scale). In 3D this is brutal (3 → 1, a circle). But in 512D (BERT) it leaves 510D, so **99.6 %** of the directional information is preserved.
 - 🎚️ The learnable **γ** and **β** can re-stretch and shift each dimension after normalization, giving the network all the elasticity it needs.
-
-**Feed Forward**:
-In a Transformer, the feed-forward layer is just a small neural network applied independently to each token. It transforms the token’s representation through linear and non-linear operations, helping the model capture more complex relationships after attention has redistributed information.
 
 
 ---
