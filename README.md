@@ -1,7 +1,7 @@
 # 🤖💬 My Language Models from Scratch
 
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.7.1-red.svg)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.5.1-red.svg)
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)
@@ -76,6 +76,9 @@ With only 5,000 iterations (~4h GPU 💻🔥), the model starts producing French
 
 
 ### **Embedding**:
+<p align="center">
+  <img src="img/1-Input_Embedding.png" alt="Embedding_schema" width="50%">
+</p>
 Embedding is the keystone of the "understanding" of the words and their senses for transformer models :
 
 Embedding is a way to **transform something** (text with tokens, image, data...) into a **list of numbers that captures their "meaning"**, not its raw form.
@@ -110,6 +113,9 @@ Here is an example of training :
 </p>
 
 ### **Positional Encoding**:
+<p align="center">
+  <img src="img/2-Positional_Encoding.png" alt="Positional Encoding schema" width="50%">
+</p>
 A Transformer treats a sentence as a set of tokens **in parallel**, **not as a sequential sequence**.
 The **positional encoder** is here to **inject the order notion** in the token representations.
 So the input of LLM is :
@@ -119,7 +125,7 @@ So the input of LLM is :
 (With i the index of the position)
 <br><br>
 In the original "Attention Is All You Need" paper, positions are encoded with sines and cosines at different frequencies.
-Here is the calcul :
+Here is the calculation :
 
 >PE(pos, 2i)   = sin(pos / 10000^(2i / d))
 PE(pos, 2i+1) = cos(pos / 10000^(2i / d))
@@ -129,15 +135,15 @@ With :
 - i = dimension index
 - d = total dimension of embedding
 
-It is useful, because the fonctions are :
+It is useful, because the functions are :
 - **continuous**,
 - **bounded** (no numerical explosion),
 - **periodic**,
 - allow us to express a **position shift** as a simple transformation
 
 For the i dimension :
-Calcul of the frequency :
->f = 1 / 10000^(2i / d))
+Calculation of the frequency :
+>f = 1 / 10000^(2i / d)
   - If **i** is **low** dimension, f is **high** !
   - If **i** is **high** dimension, f is **low** !
 Then :
@@ -146,10 +152,10 @@ Then :
 
 The same **gap of position** will be, for a **high frequency**, **just 1 or 2 tokens** but, for a **low frequency**, an **entire paragraph**.
 
-It means that the **first dimension** are "looking" **short terme** relation and for the **last dimension**, the **long terme** relation.
+It means that the **first dimensions** look at **short term** relations and the **last dimensions** at **long term** relations.
 Furthermore, the progression is **exponential**
 (not linear to **cover a good range** -
-many dimensions for short terme and mid terme and non redondantes long terme dimensions)
+many dimensions for short term and mid term and non redundant long term dimensions)
 
 <br>
 
@@ -157,18 +163,18 @@ many dimensions for short terme and mid terme and non redondantes long terme dim
   <img src="img/Circle_cos_sin.gif" alt="Sin & Cos schema" width="80%">
 </p>
 
-We calculate **sin and cos** to have an angle, to add a direction. If the value augment, are the position before or after ?
+We calculate **sin and cos** to have an angle, to add a direction. If the value increases, is the position before or after?
 It allows to have a bijective representation of the angle, a unique point on the unit circle !
 
-Even if there is a **collision** with the same angle, it is absorbed by the **multiple scale** (short, mid and long terme).
+Even if there is a **collision** with the same angle, it is absorbed by the **multiple scale** (short, mid and long term).
 
-The position (PE - Positional Encoding) is then add to the embedding (E, the token's meaning) :
+The position (PE - Positional Encoding) is then added to the embedding (E, the token's meaning) :
 >Input = E + PE
 
 With:
->E(t)=(e<sub>0</sub>,e<sub>1</sub>,…,e<sub>d−1</sub>) ∈ R<sub>d</sub>
+>E(t)=(e<sub>0</sub>,e<sub>1</sub>,…,e<sub>d−1</sub>) ∈ R<sup>d</sup>
 
-> PE(pos)=(p<sub>0</sub>,p<sub>1</sub>,…,p<sub>d−1</sub>) ∈ R<sub>d</sub>
+> PE(pos)=(p<sub>0</sub>,p<sub>1</sub>,…,p<sub>d−1</sub>) ∈ R<sup>d</sup>
 - With:
   - p<sub>0</sub> = sin(θ<sub>0</sub>)
   - p<sub>1</sub> = cos(θ<sub>0</sub>)
@@ -178,23 +184,38 @@ With:
 
 >Input = (e<sub>0</sub> + sin(θ<sub>0</sub>), e<sub>1</sub> + cos(θ<sub>0</sub>), e<sub>2</sub> + sin(θ<sub>1</sub>), e<sub>3</sub> + cos(θ<sub>1</sub>)...)
 
-With this method, the **position pollue, is mixed with embedding**, but the transformer learn with it !
+With this method, the **position pollutes, is mixed with embedding**, but the transformer learns with it !
 
+We can visualize like this :
+<p align="center">
+  <img src="img/evolution_positional_encoding.gif" alt="evolution_positional_encoding" width="80%">
+</p>
 
+Nowadays, we use Rotary Positional Embedding (RoPE) : Applies a rotation to the Query and Key vectors
 
+<p align="center">
+  <img src="img/rope_discrete_pairs_english.gif" alt="RoPE rotation schema" width="80%">
+</p>
+
+ALiBi is also used: it adds a distance-based linear bias to attention scores.
+It enables better extrapolation to longer sequences.
 
 ### **Multi-Head Attention**:
+<p align="center">
+  <img src="img/3-Multi-head_attention.png" alt="Multi-Head Attention schema" width="50%">
+</p>
+
 In a Transformer, the core mechanism is **attention**.
 The attention mechanism is built around three vectors derived from the input: Q (Query), K (Key), and V (Value).
 They control how each token (word, sub-word, etc.) focuses on others in the same sequence.
 
 Here you can find the schema of a Transformer Model :
-(Follow the red number to understand better the localisation of each schema !)
+(Follow the red number to understand better the location of each schema !)
 <p align="center">
-  <img src="img/Encoder-Decoder.png" alt="Transformer Schema" width="80%">
+  <img src="img/Encoder-Decoder.png" alt="Transformer Schema" width="50%">
 </p>
 
-Here is a cool schema I found ! It is a really clear explanation of the different dimensions for on head:
+Here is a cool schema I found ! It is a really clear explanation of the different dimensions for one head:
 <p align="center">
   <img src="img/dimension.png" alt="Dimension Schema" width="80%">
 </p>
@@ -209,10 +230,10 @@ A label that represents what kind of information a token holds.
 V = Value → What do I offer?
 The actual information content that can be shared if attended to.
 
-#### A other explication can be :
+#### Another explanation can be :
 - Q asks a question: “Who in the sequence can help me?” (For example, Are there any adjectives around me?)
 
-- K provides an identity: “I can help if you need context about X.” (For example, Yes, I'm an ajective !)
+- K provides an identity: “I can help if you need context about X.” (For example, Yes, I'm an adjective !)
 
 - V provides content: “Here’s what I can contribute.” (I can say that one thing on the sentence is blue)
 
@@ -221,23 +242,34 @@ For each cross (Q & K for 2 and A & V for 3):
 <p align="center">
   <img src="img/QxK.png" alt="QxK" width="80%">
 </p>
-We apply softmax to have A (We transform the matrix multiplication, QKT/sqrt(dk), scores into probabilities).
+We apply softmax to have A (We transform the matrix multiplication, QK<sup>T</sup>/sqrt(d<sub>k</sub>), scores into probabilities).
 
 <p align="center">
   <img src="img/AxV.png" alt="AxV" width="80%">
 </p>
 
-**Feed Forward**:
+### **Feed Forward**:
+<p align="center">
+  <img src="img/4-Feed-Forward.png" alt="Feed-Forward" width="50%">
+</p>
 In a Transformer, the feed-forward network (FFN) acts as a standard fully-connected neural network applied independently to each token.
 * **Evolution of Activations:** Early Transformers relied on standard **ReLU**, which was later replaced by smoother alternatives like **GELU**, and now predominantly **SiLU/Swish** in modern models.
 * **Architecture Shift:** While classic architectures used a simple **2-layer** setup (up-projection $\rightarrow$ activation $\rightarrow$ down-projection), modern Large Language Models (like Llama or Mistral) implement a **gated variant (SwiGLU)**. This modern approach uses **3 linear layers** to create a dynamic gating mechanism.
 Ultimately, while the attention mechanism allows tokens to communicate, the FFN transforms representations individually, acting as a "key-value memory" that stores the model's factual knowledge.
 
+Nowadays, we use a 3-Layer SwiGLU and no longer the classic 2-Layer FFN ReLU, to have better stability and results :
 
-**Add & Norm**:
-Then Add & Norm is here to don't "forget"  the initial prompt:
-- Add : We add the embedding find after the multi-head attention and the initial input
-- Norm : Then, we normalise the layer. It allows to center and resizes the values to stabilize and accelerates convergence.
+<p align="center">
+  <img src="img/ffn_comparison.svg" alt="ffn_comparison" width="80%">
+</p>
+
+### **Add & Norm**:
+<p align="center">
+  <img src="img/5-Add_and_Norm.png" alt="Add & Norm schema" width="50%">
+</p>
+Then Add & Norm is here so as not to "forget" the initial prompt:
+- Add : We add the embedding found after the multi-head attention and the initial input
+- Norm : Then, we normalize the layer. It centers and resizes the values to stabilize and accelerate convergence.
 
 The normalization used in every Transformer is **LayerNorm**, not BatchNorm. In both cases the operation is the same: **center the data to mean = 0 and rescale it to std = 1**, like a standard normal distribution N(0, 1) 📊. The only difference is **which axis you average over**:
 - **BatchNorm** → `axis=0` → mean of **each dimensions** (the batch). Each feature is centered to 0 and rescaled to std=1 across all tokens of the batch → depends on the batch size and on the other tokens
@@ -283,16 +315,19 @@ The **green point** shows the same token before and after LayerNorm — its posi
 ├── Transformer.py # Full Transformer implementation
 ```
 
-    ---
-    ## 💻 Run it on Your PC
-    Clone the repository and install dependencies:
-    ```bash
-    git clone https://github.com/Thibault-GAREL/Language_Models.git
-    sudo apt-get update
-    sudo apt-get install liballegro5-dev
-    # It is for Linux 🐧 !
-    # For macOS 🍎 / Windows 🪟, consult the documentation
-    ```
+---
+## 💻 Run it on Your PC
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/Thibault-GAREL/Language_Models.git
+cd Language_Models
+
+# Install PyTorch (CPU only)
+pip install torch
+
+# For GPU acceleration (CUDA 12.1), use instead:
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+```
 
 Next, you can use Bigram Model :
 ```bash
@@ -308,7 +343,7 @@ python Transformer.py
 
 ## 📖 Inspiration / Sources
 This project is based on:
-- 🎥 The structure for the achitecture [Andrej Karpathy – Let's build GPT from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY)
+- 🎥 The structure for architecture [Andrej Karpathy – Let's build GPT from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY)
 - 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need)
 - 🧠 OpenAI’s GPT-2 / GPT-3 and [nanoGPT](https://github.com/karpathy/nanoGPT)
 - 🔄 Explanation video for the Normalization Layer [The Most Underrated Layer Inside Every AI Model](https://youtu.be/JHl_gwVoh-k?is=CrqPJxeXfR-BF9Cz)
