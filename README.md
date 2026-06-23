@@ -76,9 +76,11 @@ With only 5,000 iterations (~4h GPU 💻🔥), the model starts producing French
 
 
 ### **Embedding**:
+
 <p align="center">
   <img src="img/1-Input_Embedding.png" alt="Embedding_schema" width="50%">
 </p>
+
 Embedding is the keystone of the "understanding" of the words and their senses for transformer models :
 
 Embedding is a way to **transform something** (text with tokens, image, data...) into a **list of numbers that captures their "meaning"**, not its raw form.
@@ -87,6 +89,7 @@ This list of numbers is a **vector with many dimensions**.
 
 
 For example, let's take dimensions, as **dessertness** and **sandwichness** ! We can find, for food, **percentage**, coordinates of dessertness and sandwichness and place, for instance, the apple strudel as (0.6, 0.8) because it is a dessert and is a bit packaged like a sandwich :
+
 <p align="center">
   <img src="img/Embedding_explication.png" alt="Embedding_explication" width="80%">
 </p>
@@ -108,14 +111,17 @@ Here is a diagram that shows the properties of embeddings (addition, subtraction
 To find this, the model performs **backpropagation of the global error** in the transformer architecture, but also for the embedding !
 
 Here is an example of training :
+
 <p align="center">
   <img src="img/Train-embedding.gif" alt="Train embedding" width="80%">
 </p>
 
 ### **Positional Encoding**:
+
 <p align="center">
   <img src="img/2-Positional_Encoding.png" alt="Positional Encoding schema" width="50%">
 </p>
+
 A Transformer treats a sentence as a set of tokens **in parallel**, **not as a sequential sequence**.
 The **positional encoder** is here to **inject the order notion** in the token representations.
 So the input of LLM is :
@@ -187,6 +193,7 @@ With:
 With this method, the **position pollutes, is mixed with embedding**, but the transformer learns with it !
 
 We can visualize like this :
+
 <p align="center">
   <img src="img/evolution_positional_encoding.gif" alt="evolution_positional_encoding" width="80%">
 </p>
@@ -201,6 +208,7 @@ ALiBi is also used: it adds a distance-based linear bias to attention scores.
 It enables better extrapolation to longer sequences.
 
 ### **Multi-Head Attention**:
+
 <p align="center">
   <img src="img/3-Multi-head_attention.png" alt="Multi-Head Attention schema" width="50%">
 </p>
@@ -211,11 +219,13 @@ They control how each token (word, sub-word, etc.) focuses on others in the same
 
 Here you can find the schema of a Transformer Model :
 (Follow the red number to understand better the location of each schema !)
+
 <p align="center">
   <img src="img/Encoder-Decoder.png" alt="Transformer Schema" width="50%">
 </p>
 
 Here is a cool schema I found ! It is a really clear explanation of the different dimensions for one head:
+
 <p align="center">
   <img src="img/dimension.png" alt="Dimension Schema" width="80%">
 </p>
@@ -239,9 +249,11 @@ The actual information content that can be shared if attended to.
 
 
 For each cross (Q & K for 2 and A & V for 3):
+
 <p align="center">
   <img src="img/QxK.png" alt="QxK" width="80%">
 </p>
+
 We apply softmax to have A (We transform the matrix multiplication, QK<sup>T</sup>/sqrt(d<sub>k</sub>), scores into probabilities).
 
 <p align="center">
@@ -249,9 +261,11 @@ We apply softmax to have A (We transform the matrix multiplication, QK<sup>T</su
 </p>
 
 ### **Feed Forward**:
+
 <p align="center">
   <img src="img/4-Feed-Forward.png" alt="Feed-Forward" width="50%">
 </p>
+
 In a Transformer, the feed-forward network (FFN) acts as a standard fully-connected neural network applied independently to each token.
 * **Evolution of Activations:** Early Transformers relied on standard **ReLU**, which was later replaced by smoother alternatives like **GELU**, and now predominantly **SiLU/Swish** in modern models.
 * **Architecture Shift:** While classic architectures used a simple **2-layer** setup (up-projection $\rightarrow$ activation $\rightarrow$ down-projection), modern Large Language Models (like Llama or Mistral) implement a **gated variant (SwiGLU)**. This modern approach uses **3 linear layers** to create a dynamic gating mechanism.
@@ -264,9 +278,11 @@ Nowadays, we use a 3-Layer SwiGLU and no longer the classic 2-Layer FFN ReLU, to
 </p>
 
 ### **Add & Norm**:
+
 <p align="center">
   <img src="img/5-Add_and_Norm.png" alt="Add & Norm schema" width="50%">
 </p>
+
 Then Add & Norm is here so as not to "forget" the initial prompt:
 - Add : We add the embedding found after the multi-head attention and the initial input
 - Norm : Then, we normalize the layer. It centers and resizes the values to stabilize and accelerate convergence.
