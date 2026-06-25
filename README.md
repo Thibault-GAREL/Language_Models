@@ -198,6 +198,8 @@ We can visualize like this :
   <img src="img/evolution_positional_encoding.gif" alt="evolution_positional_encoding" width="80%">
 </p>
 
+With this illusration, we can see the clear difference between the first token and the last one. To understand why the first token is so important, you can watch this video about [Attention Sink](https://www.youtube.com/watch?v=Y8Tj9kq4iWY).
+
 Nowadays, we use Rotary Positional Embedding (RoPE) : Applies a rotation to the Query and Key vectors
 
 <p align="center">
@@ -368,6 +370,7 @@ For the illustration:
 - The training gif for embedding : [Gif site](https://www.reddit.com/r/learnmachinelearning/comments/154s2o5/how_i_created_an_animation_of_the_embeddings/?tl=fr)
 - 📄 The scientific paper ["Attention is All You Need"](https://en.wikipedia.org/wiki/Attention_Is_All_You_Need)
 - A video from 3Blue1Brown : [Attention in transformers](https://www.youtube.com/watch?v=eMlx5fFNoYc)
+- A video from bycloud : [Attention Sink: The Fluke That Made LLMs Actually Usable](https://www.youtube.com/watch?v=Y8Tj9kq4iWY)
 
 
 Code created by me 😎, Thibault GAREL - [Github](https://github.com/Thibault-GAREL)
