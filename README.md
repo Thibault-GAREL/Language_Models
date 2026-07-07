@@ -276,7 +276,7 @@ Ultimately, while the attention mechanism allows tokens to communicate, the FFN 
 Nowadays, we use a 3-Layer SwiGLU and no longer the classic 2-Layer FFN ReLU, to have better stability and results :
 
 <p align="center">
-  <img src="img/ffn_comparison.svg" alt="ffn_comparison" width="80%">
+  <img src="img/ffn_comparison_animated.svg" alt="ffn_comparison" width="80%">
 </p>
 
 ### **Add & Norm**:
