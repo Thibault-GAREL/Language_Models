@@ -16,6 +16,12 @@ The goal of this project is to **implement a Transformer model step by step**, i
 
 This repository shows how to go from **a simple Bigram model** ➡️ to **a multi-layer Transformer** capable of generating text in French 🇫🇷 and English 🇬🇧 for example.
 
+This repo is the first of a series 📚
+
+  🧬 [modern-transformer](https://github.com/Thibault-GAREL/LLMs_modern_from_scratch) rebuilds everything the open-weights models changed after 2017 (RoPE, GQA, MoE, RMSNorm), each deviation behind its own config flag so they can be compared one at a time.
+
+  🔁 [llm-harness](https://github.com/Thibault-GAREL/LLM_harness) documents the **harness**, the program wrapped around a trained model. A model like the one here only predicts the next token, it cannot open a file, run a command, or remember what it did. The harness is the loop that hands it tools, feeds the results back as new tokens, and decides what still fits in the context window. **That loop is the entire difference between a text generator and an agent.**
+
 ---
 
 ## ⚙️ Features
@@ -29,7 +35,7 @@ This repository contains two different implementations of language models: a **s
 - 🎯 **Prediction**: Each token directly predicts the next one via a lookup table
 - 📚 **Dataset**: *Harry Potter* text, character-level encoding
 - ⚙️ **Training**: 10,000 steps with AdamW optimizer (`lr=1e-3`)
-- ⚠️ **Limitation**: No context — each prediction is independent from previous ones
+- ⚠️ **Limitation**: No context (each prediction is independent from the previous ones)
 - ✨ **Generation**: Multinomial sampling over softmax probabilities
 
 
@@ -48,6 +54,7 @@ This repository contains two different implementations of language models: a **s
 - ⚡ **Optimizations**: GPU/CUDA support, periodic train/val loss evaluation
 - 🤖 **Generation**: Context-aware text generation
 
+---
 
 ## Example Outputs
 
@@ -72,8 +79,11 @@ With only 5,000 iterations (~4h GPU 💻🔥), the model starts producing French
 - 🚀 Train the model using **PyTorch** (`AdamW` optimizer)
 - ✨ Generate new text sequences and have fun 😆 !!!
 
+---
+
 ## 🗺️ Schema
 
+This part walks through the Transformer block by block. The same content, in slide form, is in [`Formation Architecture Transformer - ILab.pdf`](Formation%20Architecture%20Transformer%20-%20ILab.pdf), the deck I wrote to present the architecture.
 
 ### **Embedding**:
 
@@ -88,7 +98,7 @@ Embedding is a way to **transform something** (text with tokens, image, data...)
 This list of numbers is a **vector with many dimensions**.
 
 
-For example, let's take dimensions, as **dessertness** and **sandwichness** ! We can find, for food, **percentage**, coordinates of dessertness and sandwichness and place, for instance, the apple strudel as (0.6, 0.8) because it is a dessert and is a bit packaged like a sandwich :
+For example, let's take two dimensions, **dessertness** and **sandwichness** ! For a food, we can give a **percentage** on each one, so a pair of coordinates, and place, for instance, the apple strudel at (sandwichness = 0.6, dessertness = 0.8) because it is clearly a dessert and it is also a bit packaged like a sandwich :
 
 <p align="center">
   <img src="img/Embedding_explication.png" alt="Embedding_explication" width="80%">
@@ -145,13 +155,13 @@ It is useful, because the functions are :
 - **continuous**,
 - **bounded** (no numerical explosion),
 - **periodic**,
-- allow us to express a **position shift** as a simple transformation
+- and they allow us to express a **position shift** as a simple transformation
 
 For the i dimension :
 Calculation of the frequency :
 >f = 1 / 10000^(2i / d)
-  - If **i** is **low** dimension, f is **high** !
-  - If **i** is **high** dimension, f is **low** !
+  - If **i** is a **low** dimension, f is **high** !
+  - If **i** is a **high** dimension, f is **low** !
 Then :
   - If **f** is **high**, it is a fast variation and 2 consecutive positions seem **very different**.
   - If **f** is **low**, it is a slow variation and 2 consecutive positions seem **very similar**.
@@ -159,9 +169,23 @@ Then :
 The same **gap of position** will be, for a **high frequency**, **just 1 or 2 tokens** but, for a **low frequency**, an **entire paragraph**.
 
 It means that the **first dimensions** look at **short term** relations and the **last dimensions** at **long term** relations.
-Furthermore, the progression is **exponential**
-(not linear to **cover a good range** -
-many dimensions for short term and mid term and non redundant long term dimensions)
+Furthermore, the progression is **exponential** and not linear, to **cover a good range** (many dimensions for short term and mid term, and non redundant long term dimensions).
+
+The `10000` of the formula is exactly what sets this range. Here is the full matrix with a **base of 100** :
+
+<p align="center">
+  <img src="img/Positional_encoding_base_periode_100.png" alt="Positional encoding with base 100" width="80%">
+</p>
+
+And the same one with a **base of 1 000 000** :
+
+<p align="center">
+  <img src="img/Positional_encoding_base_periode_1000000.png" alt="Positional encoding with base 1000000" width="80%">
+</p>
+
+With a **small base**, the frequencies decrease slowly, so almost every dimension keeps oscillating (a lot of short term detail, but the very long range is never really covered).
+With a **big base**, they collapse very fast, so only the first dimensions still vary and all the others become nearly constant (the blue stripes), which wastes them.
+`10000` is the compromise chosen in the paper.
 
 <br>
 
@@ -174,7 +198,7 @@ It allows to have a bijective representation of the angle, a unique point on the
 
 Even if there is a **collision** with the same angle, it is absorbed by the **multiple scale** (short, mid and long term).
 
-The position (PE - Positional Encoding) is then added to the embedding (E, the token's meaning) :
+The position (PE, for Positional Encoding) is then added to the embedding (E, the token's meaning) :
 >Input = E + PE
 
 With:
@@ -198,9 +222,9 @@ We can visualize like this :
   <img src="img/evolution_positional_encoding.gif" alt="evolution_positional_encoding" width="80%">
 </p>
 
-With this illusration, we can see the clear difference between the first token and the last one. To understand why the first token is so important, you can watch this video about [Attention Sink](https://www.youtube.com/watch?v=Y8Tj9kq4iWY).
+With this illustration, we can see the clear difference between the first token and the last one. To understand why the first token is so important, you can watch this video about [Attention Sink](https://www.youtube.com/watch?v=Y8Tj9kq4iWY).
 
-Nowadays, we use Rotary Positional Embedding (RoPE) : Applies a rotation to the Query and Key vectors
+Nowadays, we use Rotary Positional Embedding (RoPE) : it applies a rotation to the Query and Key vectors.
 
 <p align="center">
   <img src="img/rope_discrete_pairs_english.gif" alt="RoPE rotation schema" width="80%">
@@ -220,7 +244,7 @@ The attention mechanism is built around three vectors derived from the input: Q 
 They control how each token (word, sub-word, etc.) focuses on others in the same sequence.
 
 Here you can find the schema of a Transformer Model :
-(Follow the red number to understand better the location of each schema !)
+(Follow the red numbers to better understand where each schema fits !)
 
 <p align="center">
   <img src="img/Encoder-Decoder.png" alt="Transformer Schema" width="50%">
@@ -232,7 +256,7 @@ Here is a cool schema I found ! It is a really clear explanation of the differen
   <img src="img/dimension.png" alt="Dimension Schema" width="80%">
 </p>
 
-#### What They Mean ?
+#### What Do They Mean ?
 Q = Query → What am I looking for?
 The question a token asks to find relevant context.
 
@@ -247,16 +271,16 @@ The actual information content that can be shared if attended to.
 
 - K provides an identity: “I can help if you need context about X.” (For example, Yes, I'm an adjective !)
 
-- V provides content: “Here’s what I can contribute.” (I can say that one thing on the sentence is blue)
+- V provides content: “Here’s what I can contribute.” (I can say that one thing in the sentence is blue)
 
 
-For each cross (Q & K for 2 and A & V for 3):
+For each product (Q × K for the step 2, and A × V for the step 3) :
 
 <p align="center">
   <img src="img/QxK.png" alt="QxK" width="80%">
 </p>
 
-We apply softmax to have A (We transform the matrix multiplication, QK<sup>T</sup>/sqrt(d<sub>k</sub>), scores into probabilities).
+We apply a softmax to get A (we turn the scores of the matrix multiplication, QK<sup>T</sup>/sqrt(d<sub>k</sub>), into probabilities).
 
 <p align="center">
   <img src="img/AxV.png" alt="AxV" width="80%">
@@ -270,7 +294,8 @@ We apply softmax to have A (We transform the matrix multiplication, QK<sup>T</su
 
 In a Transformer, the feed-forward network (FFN) acts as a standard fully-connected neural network applied independently to each token.
 * **Evolution of Activations:** Early Transformers relied on standard **ReLU**, which was later replaced by smoother alternatives like **GELU**, and now predominantly **SiLU/Swish** in modern models.
-* **Architecture Shift:** While classic architectures used a simple **2-layer** setup (up-projection $\rightarrow$ activation $\rightarrow$ down-projection), modern Large Language Models (like Llama or Mistral) implement a **gated variant (SwiGLU)**. This modern approach uses **3 linear layers** to create a dynamic gating mechanism.
+* **Architecture Shift:** While classic architectures used a simple **2-layer** setup (up-projection → activation → down-projection), modern Large Language Models (like Llama or Mistral) implement a **gated variant (SwiGLU)**. This modern approach uses **3 linear layers** to create a dynamic gating mechanism.
+
 Ultimately, while the attention mechanism allows tokens to communicate, the FFN transforms representations individually, acting as a "key-value memory" that stores the model's factual knowledge.
 
 Nowadays, we use a 3-Layer SwiGLU and no longer the classic 2-Layer FFN ReLU, to have better stability and results :
@@ -290,7 +315,7 @@ Then Add & Norm is here so as not to "forget" the initial prompt:
 - Norm : Then, we normalize the layer. It centers and resizes the values to stabilize and accelerate convergence.
 
 The normalization used in every Transformer is **LayerNorm**, not BatchNorm. In both cases the operation is the same: **center the data to mean = 0 and rescale it to std = 1**, like a standard normal distribution N(0, 1) 📊. The only difference is **which axis you average over**:
-- **BatchNorm** → `axis=0` → mean of **each dimensions** (the batch). Each feature is centered to 0 and rescaled to std=1 across all tokens of the batch → depends on the batch size and on the other tokens
+- **BatchNorm** → `axis=0` → mean of **each dimension** (across the batch). Each feature is centered to 0 and rescaled to std=1 across all tokens of the batch → depends on the batch size and on the other tokens
 - **LayerNorm** → `axis=1` → mean of the **point itself** (across its features). Each token is centered to 0 and rescaled to std=1 independently → fully independent of the batch (even works at inference with `batch_size=1`)
 
 For one token x = (x<sub>1</sub>, x<sub>2</sub>, …, x<sub>d</sub>) of embedding dimension d :
@@ -310,27 +335,48 @@ Here is a 3D visualization (d = 3, so the sphere of radius √3 intersected with
   <img src="img/Figure_visualisation.png" alt="LayerNorm 3D visualization" width="80%">
 </p>
 
-The **green point** shows the same token before and after LayerNorm — its position is completely re-mapped, but its **direction is preserved**.
+The **green point** shows the same token before and after LayerNorm. Its position is completely re-mapped, but its **direction is preserved**.
 
 **Doesn't this destroy the token's identity?** Not really :
 - 🎯 The semantic content of a token is encoded in its **direction**, not its norm. Attention computes Q · K<sup>T</sup>, which is essentially a cosine similarity → it only "sees" directions.
 - 📐 LayerNorm always removes exactly **2 degrees of freedom** (the mean + the scale). In 3D this is brutal (3 → 1, a circle). But in 512D (BERT) it leaves 510D, so **99.6 %** of the directional information is preserved.
 - 🎚️ The learnable **γ** and **β** can re-stretch and shift each dimension after normalization, giving the network all the elasticity it needs.
 
+### 🧾 Brief summary
+
+> So, for me :
+>
+> The **Multi-Head Attention** part is used to build the right attention links between the tokens. It adds for instance the meaning of "green" to "apple", then "eat", so we end up with the fruit and not the company.
+>
+> The **FFN** then takes this new representation (food) and adds the knowledge it learned during the training, written into the representation as a "delta" that shifts the meaning.
+>
+> **Add & Norm** is here to regulate, and to not forget the first representation of the previous tokens.
+>
+> Once the embedding is rich in information, at the very end of the stack, we do a similarity score between the last embedding and the vocabulary to get the logits, then a softmax on them (with the temperature and so on).
+>
+> So the full architecture is trained to take previous tokens, determine the links between every token, scratch and deform the representation, to arrive at the next token's embedding.
 
 ---
 
 
 ## 📂 Repository structure
 ```bash
-├── img/           # For the README.md
+├── img/                                          # Every figure, gif and svg of the README.md
+│   ├── _gen_ffn.py                               # Script that generates the FFN comparison svg
 │
-├── text/          # Training corpora (Victor Hugo, Harry Potter, …)
+├── text/                                         # Training corpora (Victor Hugo, Harry Potter, …)
 │
-├── Bigram.py      # Bigram model + first experiments
+├── visualisation/                                # Standalone scripts behind the README figures
+│   ├── layernorm_3d.py                           # 3D view of LayerNorm (sphere ∩ plane = circle)
+│   ├── positional_encoding.py                    # Positional encoding matrix and its frequencies
+│   ├── positional_encoding_widget.ipynb          # Interactive notebook version (sliders)
+│
+├── Bigram.py                                     # Bigram model + first experiments
+├── Transformer.py                                # Full Transformer implementation
+│
+├── Formation Architecture Transformer - ILab.pdf # My slides about the Transformer architecture
 ├── LICENSE
 ├── README.md
-├── Transformer.py # Full Transformer implementation
 ```
 
 ---
@@ -339,6 +385,10 @@ Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/Thibault-GAREL/Language_Models.git
 cd Language_Models
+
+python -m venv .venv # if you don't have a virtual environment
+source .venv/bin/activate   # Linux / macOS
+.venv\Scripts\activate      # Windows
 
 # Install PyTorch (CPU only)
 pip install torch
@@ -357,6 +407,16 @@ Or use Transformer Model :
 python Transformer.py
 ```
 
+### 📊 Reproduce the figures
+
+The scripts of `visualisation/` redraw the figures used in this README. They only need `numpy` and `matplotlib` :
+```bash
+pip install numpy matplotlib
+
+python visualisation/positional_encoding.py  # Positional encoding matrix and frequencies
+python visualisation/layernorm_3d.py         # 3D visualization of LayerNorm
+```
+
 ---
 
 ## 📖 Inspiration / Sources
@@ -372,5 +432,6 @@ For the illustration:
 - A video from 3Blue1Brown : [Attention in transformers](https://www.youtube.com/watch?v=eMlx5fFNoYc)
 - A video from bycloud : [Attention Sink: The Fluke That Made LLMs Actually Usable](https://www.youtube.com/watch?v=Y8Tj9kq4iWY)
 
+Related work of mine: [modern-transformer](https://github.com/Thibault-GAREL/LLMs_modern_from_scratch) for everything the architecture gained after 2017, and [llm-harness](https://github.com/Thibault-GAREL/LLM_harness) for the agent loop that runs a trained model once it exists.
 
 Code created by me 😎, Thibault GAREL - [Github](https://github.com/Thibault-GAREL)
